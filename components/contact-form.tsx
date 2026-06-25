@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { sendContactEmail } from '@/app/actions/send-email';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -19,6 +20,7 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function ContactForm() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -30,13 +32,21 @@ export default function ContactForm() {
 
   const onSubmit = async (data: ContactFormData) => {
     setSubmitStatus('loading');
+    setErrorMessage('');
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setSubmitStatus('success');
-      reset();
-      setTimeout(() => setSubmitStatus('idle'), 3000);
-    } catch (error) {
+      const result = await sendContactEmail(data);
+      if (result.success) {
+        setSubmitStatus('success');
+        reset();
+        setTimeout(() => setSubmitStatus('idle'), 4000);
+      } else {
+        console.error('Email send failed:', result.error);
+        setErrorMessage(result.error || 'Failed to send message. Please try again.');
+        setSubmitStatus('error');
+      }
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      setErrorMessage(error.message || 'Failed to send message. Please try again.');
       setSubmitStatus('error');
     }
   };
@@ -209,7 +219,7 @@ export default function ContactForm() {
 
             {submitStatus === 'error' && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-200">
-                Failed to send message. Please try again.
+                {errorMessage || 'Failed to send message. Please try again.'}
               </div>
             )}
 
