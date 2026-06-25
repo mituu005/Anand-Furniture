@@ -127,7 +127,7 @@ export default function Products() {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               <AnimatePresence mode="popLayout">
                 {filteredProducts.map((product, idx) => (
                   <motion.div
@@ -141,7 +141,7 @@ export default function Products() {
                   >
                     <Link href={`/products/${product.slug}`} className="flex flex-col h-full flex-grow">
                       {/* Image Container */}
-                      <div className="relative h-64 overflow-hidden bg-muted">
+                      <div className="relative h-52 overflow-hidden bg-muted">
                         <Image
                           src={product.image}
                           alt={product.name}
